@@ -1,29 +1,15 @@
 # README #
+This repository contains the code to optimize muscle parameters
 
-This README would normally document whatever steps are necessary to get your application up and running.
+# Requirements # 
+Matlab 2019b (compiled Ipopt does not work with higher version Matlab)
 
-### What is this repository for? ###
+# How to use? # 
+Add the folder and all subfolders to the Matlab path
+Run optimization using the script 'MuscleParameterOpt_parfor.m'
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+# Contribution guidelines # 
+To be added
 
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+# Who do I talk to? # 
+Huawei Wang (h.wang-2@utwente.nl)
