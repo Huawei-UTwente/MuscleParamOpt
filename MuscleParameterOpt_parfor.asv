@@ -42,10 +42,10 @@ M = 4;  % number of muscle in each side of leg
 S = 5;  % number of states of each muscle model
 C = 4;  % number of constraints of each muscle model
         
-subj = 04;  % subject number
+subj = 04;  % s
 
-homeDataPath = 'ProcessedExpData';  % path to experimental data
-homeSavingPath = 'MuscleParamOptResults';  % path for saving results
+homeDataPath = 'ProcessedExpData';
+homeSavingPath = 'MuscleParamOptResults';
     
 % get subject mass
 mass = subjMass(subj);
@@ -131,6 +131,7 @@ hs = zeros(1, T);
     x_ub3 = [x_ub2, par_rf_ub];
     
     %% do optimizations with ipopt
+    % set up optimizing parameter lower bounds.  
     
     % Set the IPOPT options.
     options.ipopt.hessian_approximation = 'limited-memory';
@@ -139,7 +140,6 @@ hs = zeros(1, T);
     options.ipopt.max_iter              = 5000;
     options.ipopt.linear_solver         = 'mumps';
     
-    % optimization parameters
     auxdata.mus_par0 = mus_par0;
     auxdata.t_em = t_em;
     
@@ -155,28 +155,22 @@ hs = zeros(1, T);
     auxdata.torque = torque;
     auxdata.mus_act = mus_act;
     auxdata.d = d;
-    
-    % weight of each objective function term
     auxdata.W1 = W1;
     auxdata.W2 = W2;
     auxdata.W3 = W3;
     auxdata.W4 = W4;
     auxdata.W5 = W5;
     
-    % jacobian structure
     [row, col] = jacobianstructure_ipopt_rc_MPO(auxdata);
     auxdata.row = row;
     auxdata.col = col;
 
-    % boundaries for the state parameters
     options.lb = x_lb3;
     options.ub = x_ub3;
     
     rCons = M*C*sum(N - ceil(t_em./hs) - 1) ...
                 + M*(C-1)*sum(ceil(t_em./hs));
             
-    % boundaries for constraints, all zeros means all of them are equality
-    % constraints.
     options.cl = zeros(1, rCons);
     options.cu = zeros(1, rCons);
     
@@ -199,7 +193,6 @@ hs = zeros(1, T);
 
     auxdata.folder = folder;
     
-    % run optimizations in parallel 
     parfor opt = 1:100
         do_optimization_MPO(opt, auxdata)
     end
