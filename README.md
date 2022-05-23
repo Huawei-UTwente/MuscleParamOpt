@@ -2,7 +2,8 @@
 This repository contains the code to optimize muscle parameters
 
 ### Requirements ### 
-Matlab 2019b (compiled Ipopt does not work with higher version Matlab)
+* Windows 7 or 10
+* Matlab 2019b (compiled Ipopt does not work with higher version Matlab)
 
 ### How to use? ### 
 * Add the folder and all subfolders to the Matlab path
