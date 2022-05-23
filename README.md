@@ -7,7 +7,7 @@ This repository contains the code to optimize muscle parameters
 
 ### How to use? ### 
 * Add the folder and all subfolders to the Matlab path
-* Run optimization using the script 'MuscleParameterOpt_parfor.m'
+* Run optimization using the script 'MuscleParameterOpt_parfor_func.m'
 
 ### Contribution guidelines ### 
 To be added
