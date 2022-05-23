@@ -14,7 +14,7 @@ subj = 6;
 trialNames = ["walk_09", "walk_18", "walk_27", "walk_45", "walk_54"];
 
 % initlize parameters
-T = 2;                      % number of data trials
+T = 3;                      % number of data trials
 N = 50 + zeros(1, T);       % number of data node at each data trial
 t_em = 0.1 + zeros(1, T);   % muscle electromechanical delay
 J = 1;                      % number of joints

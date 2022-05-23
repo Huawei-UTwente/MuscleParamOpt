@@ -9,6 +9,7 @@ function do_optimization_MPO(opt, auxdata)
     M = auxdata.M;
     S = auxdata.S;
     N = auxdata.N;
+    P = auxdata.P;
     
     hs = auxdata.hs;
     mus_act = auxdata.mus_act;
@@ -49,12 +50,6 @@ function do_optimization_MPO(opt, auxdata)
 
     x0 = [x0_2, par0];
 
-    % The callback functions.
-    funcs.objective         = @objective_ipopt_MPO;
-    funcs.constraints       = @constraints_ipopt_MPO;
-    funcs.gradient          = @gradient_ipopt_MPO;
-    funcs.jacobian          = @jacobian_ipopt_MPO;
-    funcs.jacobianstructure = @jacobianstructure_ipopt_MPO;
 
     [x, info] = ipopt(x0, funcs, options);
 

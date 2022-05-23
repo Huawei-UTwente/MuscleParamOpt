@@ -6,7 +6,7 @@
 % Date: August 8, 2020
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [mom, force] = muscleForceMoment_MPO(x, lmt, d, M, N, S, J)
+function [mom, force] = muscleForceMoment_MPO(x, lmt, d, M, N, S, J, P)
 
     lce_opt = x(end - P + 1:end - P + M);
     lt_slack = x(end - P + M + 1:end - P + 2*M);

@@ -23,39 +23,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-clc
-clear
-close all
-
-trialNamesOpt = ["walk_09", "walk_18", "walk_27", "walk_36", "walk_45", "walk_54", "run_63", "run_81", "run_99"];
-subjMass = [69.3, 97.8, 58.4, 75.2, 65.1, 56.0, 80.8, 61.5, 81, 61.6, 62.4, 69];
-muscleNames = ["soleus_r", "lat_gas_r", "med_gas_r", "tib_ant_r"];
-coordinateNames = ["ankle_angle_r"];
+function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
+                                        mass, muscleNames, coordinateNames,...
+                                        homeSavingPath)
                
-T = 9;  % number of data trails involved in the optimization, each data trial
-        % could have different data nodes.
-N = 100 + zeros(1, T);  % number of nodes in each trail of data
-t_em = 0.1 + zeros(1, T);  % electrialmechaincal delay inside muscle physiologies, around
-                           % 100ms. Could be different among data trials
-J = 1;  % number of joint in each side of leg
-M = 4;  % number of muscle in each side of leg
-S = 5;  % number of states of each muscle model
-C = 4;  % number of constraints of each muscle model
-        
-subj = 04;  % s
+    T = length(trialNamesOpt);  % number of data trails involved in the optimization, each data trial
+            % could have different data nodes.
+    N = 100 + zeros(1, T);  % number of nodes in each trail of data
+    t_em = 0.1 + zeros(1, T);  % electrialmechaincal delay inside muscle physiologies, around
+                               % 100ms. Could be different among data trials
+    J = length(coordinateNames);  % number of joint in each side of leg
+    M = length(muscleNames);  % number of muscle in each side of leg
+    S = 5;  % number of states of each muscle model
+    C = 4;  % number of constraints of each muscle model
 
-homeDataPath = 'ProcessedExpData';
-homeSavingPath = 'MuscleParamOptResults';
-    
-% get subject mass
-mass = subjMass(subj);
-
-% initialize the matrix of optimization inputs
-mus_act = zeros(sum(N), M);
-torque = zeros(sum(N), J);
-lmt = zeros(sum(N), M);
-d = zeros(sum(N), M);
-hs = zeros(1, T);
+    % initialize the matrix of optimization inputs
+    mus_act = zeros(sum(N), M);
+    torque = zeros(sum(N), J);
+    lmt = zeros(sum(N), M);
+    d = zeros(sum(N), M);
+    hs = zeros(1, T);
 
     for t = 1:T  % load trial data and get muscle parameters from the averaged gait data
 
@@ -89,11 +76,11 @@ hs = zeros(1, T);
     
     %% define default muscle parameters
     % weights of the terms of the objective function
-    W1 = 50;  % weight of joint torque fits
+    W1 = 100;  % weight of joint torque fits
     W2 = 100;  % weight of muscle activation fits
     W3 = 10;  % weight of muscle activation smoothness
     W4 = 10;  % weight of muscle force smoothness
-    W5 = 50; % weight of diversity of the optimizing parameters
+    W5 = 1; % weight of diversity of the optimizing parameters
     
     Prange = 0.25;
     
@@ -109,7 +96,7 @@ hs = zeros(1, T);
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_lb = [mus_par0(1:2*M)*(1 - Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M+1:4*M)*(1 - Prange*2)];
+                 mus_par0(3*M + 1:4*M)*(1 - Prange*2)];
 
     x_lb3 = [x_lb2, par_rf_lb];
 
@@ -126,12 +113,11 @@ hs = zeros(1, T);
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_ub = [mus_par0(1:2*M)*(1 + Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M+1:4*M)*(1 + Prange*2)]; 
+                 mus_par0(3*M + 1:4*M)*(1 + Prange*2)]; 
 
     x_ub3 = [x_ub2, par_rf_ub];
     
     %% do optimizations with ipopt
-    % set up optimizing parameter lower bounds.  
     
     % Set the IPOPT options.
     options.ipopt.hessian_approximation = 'limited-memory';
@@ -140,6 +126,7 @@ hs = zeros(1, T);
     options.ipopt.max_iter              = 5000;
     options.ipopt.linear_solver         = 'mumps';
     
+    % optimization parameters
     auxdata.mus_par0 = mus_par0;
     auxdata.t_em = t_em;
     
@@ -155,22 +142,31 @@ hs = zeros(1, T);
     auxdata.torque = torque;
     auxdata.mus_act = mus_act;
     auxdata.d = d;
+    
+    % weight of each objective function term
     auxdata.W1 = W1;
     auxdata.W2 = W2;
     auxdata.W3 = W3;
     auxdata.W4 = W4;
     auxdata.W5 = W5;
     
+    % jacobian structure
     [row, col] = jacobianstructure_ipopt_rc_MPO(auxdata);
     auxdata.row = row;
     auxdata.col = col;
 
+    % boundaries for the state parameters
     options.lb = x_lb3;
     options.ub = x_ub3;
     
     rCons = M*C*sum(N - ceil(t_em./hs) - 1) ...
                 + M*(C-1)*sum(ceil(t_em./hs));
             
+    auxdata.rJac = rCons;
+    auxdata.cJac = length(x_ub3);
+            
+    % boundaries for constraints, all zeros means all of them are equality
+    % constraints.
     options.cl = zeros(1, rCons);
     options.cu = zeros(1, rCons);
     
@@ -193,7 +189,10 @@ hs = zeros(1, T);
 
     auxdata.folder = folder;
     
+    % run optimizations in parallel 
     parfor opt = 1:100
         do_optimization_MPO(opt, auxdata)
     end
+    
+end
     

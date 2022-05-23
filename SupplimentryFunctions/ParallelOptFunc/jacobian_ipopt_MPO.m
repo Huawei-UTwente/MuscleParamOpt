@@ -5,6 +5,7 @@ function J = jacobian_ipopt_MPO(x, auxdata)
     N = auxdata.N;
     M = auxdata.M;
     S = auxdata.S;
+    C = auxdata.C;
     P = auxdata.P;
     t_em = auxdata.t_em;
     hs = auxdata.hs;
@@ -15,7 +16,6 @@ function J = jacobian_ipopt_MPO(x, auxdata)
     
     jac_nz = jacobian_MPO(x, M, S, C, N, P, lmt, t_em, hs);
 
-    J = sparse(row, col, jac_nz, sum(N-1)*C, ...
-        sum(N)*M*S + P);
+    J = sparse(row, col, jac_nz, auxdata.rJac, auxdata.cJac);
 
 end

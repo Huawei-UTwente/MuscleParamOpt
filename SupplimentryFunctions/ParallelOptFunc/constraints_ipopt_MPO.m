@@ -8,6 +8,7 @@ function c = constraints_ipopt_MPO(x, auxdata)
     N = auxdata.N;
     P = auxdata.P;
     hs = auxdata.hs;
+    t_em = auxdata.t_em;
     
     % equality constraints
     c = constraints_MPO(x, M, S, C, N, P, lmt, t_em, hs);

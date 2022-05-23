@@ -5,7 +5,7 @@ function g = gradient_ipopt_MPO(x, auxdata)
     torque = auxdata.torque;
     mus_act = auxdata.mus_act;
     d = auxdata.d;
-    muscle_par0 = auxdata.muscle_par0;
+    mus_par0 = auxdata.mus_par0;
     
     N = auxdata.N;
     M = auxdata.M;
@@ -19,6 +19,6 @@ function g = gradient_ipopt_MPO(x, auxdata)
 
     % calcualte gradient
     g = gradient_MPO(x, lmt, torque, mus_act, d, M, N, S, P,...
-                             muscle_par0, W1, W2, W3, W4, W5);
+                             mus_par0, W1, W2, W3, W4, W5);
 
 end

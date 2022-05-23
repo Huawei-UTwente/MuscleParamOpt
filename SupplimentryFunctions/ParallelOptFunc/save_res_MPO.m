@@ -18,13 +18,14 @@ function save_res_MPO(saving_names, x, info, auxdata)
     torque = auxdata.torque;
     mus_act = auxdata.mus_act;
     d = auxdata.d;
+    mus_par0 = auxdata.mus_par0;
 
     % generate the joint moments and muscle force and activations
 
-    [mom_res, force_res] = muscleForceMoment_MPO(x, lmt, d, M, N, S, J);
+    [mom_res, force_res] = muscleForceMoment_MPO(x, lmt, d, M, N, S, J, P);
 
     obj = objective_MPO(x, lmt, torque, mus_act, d, M, N, S, P,...
-                              muscle_par0, W1, W2, W3, W4, W5);
+                              mus_par0, W1, W2, W3, W4, W5);
     time = info.cpu;
     status = info.status;
 
