@@ -9,10 +9,17 @@ clc
 clear
 
 % initlize parameters
-b1 = 0.815;
-b2 = 1.055;
-b3 = 0.162;
-b4 = 0.063;
+% b1 = 0.815;
+% b2 = 1.055;
+% b3 = 0.162;
+% b4 = 0.063;
+
+b1 = 0.433;
+b2 = 0.717;
+b3 = -0.030;
+b4 = 0.200;
+
+
 lce_nor = [0.8, 1.2];  % deactivation time constant
 
 % calculate activation dynamics derivatives
@@ -49,5 +56,5 @@ tolerance = 1e-6;
 errorid_df_dlce_nor_fd = diffEvaluate(dfact_dlce_nor_equ, df_dlce_nor_fd, tolerance);
 
 if ~isempty(errorid_df_dlce_nor_fd)
-   printf('Differentiations in df_dlce_nor beyond thresholds\n')
+   sprintf('Differentiations in df_dlce_nor beyond thresholds\n')
 end
