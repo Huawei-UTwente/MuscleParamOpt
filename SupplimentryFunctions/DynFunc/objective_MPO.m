@@ -1,5 +1,5 @@
 function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
-                          muscle_par0, W1, W2, W3, W4, W5)
+                          muscle_par0, W1, W2, W3, W4, W5, W6)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The callback for calculating the objective
 % Input: 
@@ -19,6 +19,7 @@ function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
     
     sum_tor = 0;
     sum_act = 0;
+    sum_for = 0;  % very small term to eliminate  
     sum_act_smo = 0;
     sum_fse_smo = 0;
     
@@ -43,12 +44,14 @@ function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
             tor_opt = Fse.*Fmax*d_mea';  
             
             % calculate the sum of square fit
-            sum_tor = sum_tor + sum((tor_opt - tor_mea).^2);
-            sum_act = sum_act + sum((act_opt - act_mea).^2);
+            sum_tor = sum_tor + sum((tor_opt - tor_mea).^2);  % torque fit
+            sum_act = sum_act + sum((act_opt - act_mea).^2);  % emg fit
+            sum_for = sum_for + sum(Fse);  % L1 regularization
             
             if n < N(t)
                act_opt_nt = x(sta_st + sta_st_n + M*S + 4*M + 1: ...
                               sta_st + sta_st_n + M*S + 5*M);
+                          
                sum_act_smo = sum_act_smo + sum((act_opt_nt - act_opt).^2);
                
                lce_nt = x(sta_st + sta_st_n + M*S + 2*M + 1: sta_st + sta_st_n + M*S + 3*M);
@@ -61,7 +64,7 @@ function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
         end
     end
     
-    obj_fit = (W1*sum_tor + W2*sum_act + W3*sum_act_smo + W4*sum_fse_smo)/sum(N);
+    obj_fit = (W1*sum_tor + W2*sum_act + W6*sum_for + W3*sum_act_smo + W4*sum_fse_smo)/sum(N);
 
     obj_par = sum((x(end - P + 1:end)./muscle_par0 - 1).^2)/P;
     

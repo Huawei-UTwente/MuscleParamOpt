@@ -92,31 +92,32 @@ W2 = 100;  % weight of muscle activation fits
 W3 = 10;  % weight of muscle activation smoothness
 W4 = 10;  % weight of muscle force smoothness
 W5 = 10; % weight of diversity of the optimizing parameters
+W6 = 10;  % weight to eliminate co-contraction
 
 grad_equ = gradient_MPO(x, lmt, torque, mus_act, ma, M, N, S, P,...
-                             muscle_par0, W1, W2, W3, W4, W5);
+                             muscle_par0, W1, W2, W3, W4, W5, W6);
 
 
 % finite differentiation
-delta = 1e-6;
+delta = 1e-5;
 % differentiation of muscle fiber lengths lce
 for ia = 1:length(x)
     
    % get values with upper change
    delta_x = x(ia)*delta;
    
-   if abs(delta_x) < 1e-6
-       delta_x = 1e-6;
+   if abs(delta_x) < 1e-5
+       delta_x = 1e-5;
    end
    
    x(ia) = x(ia) + delta_x;
    obj_up = objective_MPO(x, lmt, torque, mus_act, ma, M, N, S, P,...
-                          muscle_par0, W1, W2, W3, W4, W5);
+                          muscle_par0, W1, W2, W3, W4, W5, W6);
    
    % get values with upper change
    x(ia) = x(ia) - 2*delta_x;
    obj_dw = objective_MPO(x, lmt, torque, mus_act, ma, M, N, S, P,...
-                          muscle_par0, W1, W2, W3, W4, W5);
+                          muscle_par0, W1, W2, W3, W4, W5, W6);
 
    % change back to the original value
    x(ia) = x(ia) + delta_x;
@@ -129,7 +130,7 @@ end
 diff_grad = [grad_equ', grad_fd', grad_equ' - grad_fd', (grad_equ' - grad_fd')./grad_equ'];
 
 % check the drivative differences
-tolerance = 1e-5;
+tolerance = 1e-4;
 
 % difference check of df_da
 errorid_grad = diffEvaluate(grad_equ, grad_fd, tolerance);

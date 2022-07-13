@@ -1,5 +1,5 @@
 function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
-                             muscle_par0, W1, W2, W3, W4, W5)
+                             muscle_par0, W1, W2, W3, W4, W5, W6)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The callback for calculating the gradient
 %
@@ -21,6 +21,7 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
     W2 = W2/sum(N);
     W3 = W3/sum(N);
     W4 = W4/sum(N);
+    W6 = W6/sum(N);
 
     % gradient of the fit objective term
     % fit of muscle activations and joint torques
@@ -46,6 +47,7 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
             
             tor_opt = Fse.*Fmax*d_mea';
             
+            % gradient of the torque fit
             grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) = ...
                 grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) + ...
                 2*W1*(tor_opt - tor_mea).*Fmax.*d_mea.*dFse_dlce;
@@ -63,11 +65,26 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
                 2*W1*(tor_opt - tor_mea).*Fse.*d_mea;
             
             
-            % calculate gradients
+            % calculate gradients of EMG fit
             grad(sta_st + sta_st_n + 4*M + 1:sta_st + sta_st_n + 5*M) = ...
                 grad(sta_st + sta_st_n + 4*M + 1:sta_st + sta_st_n + 5*M) ... 
                 + 2*W2*(act_opt - act_mea);
             
+            
+            % gradients of eliminate co-constraction
+            grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) = ...
+                grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) + ...
+                W6*dFse_dlce;
+            
+            grad(p_st + 1:p_st + M) = grad(p_st + 1:p_st + M) + ...
+                W6*dFse_dlce_opt;
+            
+            grad(p_st + M + 1:p_st + 2*M) = grad(p_st + M + 1:p_st + 2*M) + ...
+                W6*dFse_dlt_slack;
+            
+            grad(p_st + 2*M + 1:p_st + 3*M) = grad(p_st + 2*M + 1:p_st + 3*M) + ...
+                W6*dFse_dtheta0;
+
             % activation smoothness gradients
             if n < N(t)
 
