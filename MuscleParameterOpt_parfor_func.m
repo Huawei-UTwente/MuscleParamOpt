@@ -81,6 +81,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     W3 = 10;  % weight of muscle activation smoothness
     W4 = 10;  % weight of muscle force smoothness
     W5 = 1; % weight of diversity of the optimizing parameters
+    W6 = 0.05;  % very small number to eliminate co-contraction
     
     Prange = 0.25;
     
@@ -113,7 +114,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_ub = [mus_par0(1:2*M)*(1 + Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M + 1:4*M)*(1 + Prange*2)]; 
+                 mus_par0(3*M + 1:4*M)*(1 + Prange*4)]; 
 
     x_ub3 = [x_ub2, par_rf_ub];
     
@@ -149,6 +150,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     auxdata.W3 = W3;
     auxdata.W4 = W4;
     auxdata.W5 = W5;
+    auxdata.W6 = W6;
     
     % jacobian structure
     [row, col] = jacobianstructure_ipopt_rc_MPO(auxdata);

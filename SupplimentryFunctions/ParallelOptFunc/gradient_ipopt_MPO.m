@@ -16,9 +16,10 @@ function g = gradient_ipopt_MPO(x, auxdata)
     W3 = auxdata.W3;
     W4 = auxdata.W4;
     W5 = auxdata.W5;
+    W6 = auxdata.W6;
 
     % calcualte gradient
     g = gradient_MPO(x, lmt, torque, mus_act, d, M, N, S, P,...
-                             mus_par0, W1, W2, W3, W4, W5);
+                             mus_par0, W1, W2, W3, W4, W5, W6);
 
 end
