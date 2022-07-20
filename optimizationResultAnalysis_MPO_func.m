@@ -127,7 +127,7 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
         'Lt_slack1', 'Lt_slack2', 'Lt_slack3', 'Lt_slack4', ...
         'Theta_opt1', 'Theta_opt2', 'Theta_opt3', 'Theta_opt4',...
         'Fmax1', 'Fmax2', 'Fmax3', 'Fmax4'})
-    ylim([1-2*Range, 1+2*Range])
+    ylim([1-2*Range, 1+4*Range])
     hold off
     title('Optimized Parameters')
     ylabel('Normalized range %')
@@ -141,7 +141,7 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
     hold on
     plot([Lce_opt_sort(st:ed, :)./lce_opt0, Lt_slack_sort(st:ed, :)./lt_slack0,...
           Theta0_sort(st:ed, :)./theta0, Fmax_sort(st:ed, :)./Fmax0]', '*')
-    ylim([1-2*Range, 1+2*Range])
+    ylim([1-2*Range, 1+4*Range])
 
     hold off
     title('Optimized Parameters in top 3 optimizations')

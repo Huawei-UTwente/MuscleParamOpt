@@ -4,7 +4,10 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% some default parameters, from Groote 2016 paper
+% muscle model curves, parameters from Groote 2016 paper
+
+%% muscle force-length curves
+
     b11 = 0.815;
     b21 = 1.055;
     b31 = 0.162;
@@ -34,10 +37,34 @@
     
     fce = fce1 + fce2 + fce3;
 
-    % passive force length relationship and its differentiations
+    %% passive force length relationship and its differentiations
+    
     fpee1 = exp(kpe*(lce_nor - 1)/e0);
 
     fpee = (fpee1 - 1)./(exp(kpe) - 1);
+    
+    %% muscle force-velocity curves
+    
+        % force velocity relationship and its differentiations.
+    
+    dlce_nor = -1:0.01:1;
+
+    fv_logfun = (d2*dlce_nor + d3) + sqrt(((d2*dlce_nor + d3).^2) + 1);
+    fv_log = log(fv_logfun);
+
+    fv = d1*fv_log + d4;
+    
+    %% Tendon force calculation
+    
+    c1 = 0.2;
+    c2 = 0.995;
+    c3 = 0.25;
+    kT = 35;
+    
+    lt_nor = 0.98:0.0001:1.05;
+    Fse_nor = c1*exp(kT.*(lt_nor - c2)) - c3;
+    
+    %% plot all curves
     
     
     newcolors = [0.83 0.14 0.14
@@ -48,8 +75,15 @@
     colororder(newcolors)
     
     figure;
-    st = 40;
-    ed = 160;
+    
+    subplot(1,3,1)
+    plot(lt_nor, Fse_nor, '-','Color', [.7 .7 .7], 'linewidth', 2);
+    xlabel('Lt-nor')
+    ylabel('Ft')
+    
+    subplot(1,3,2)
+    st = 1;
+    ed = length(lce_nor);
     plot(lce_nor(st:ed), fce1(st:ed), '--', 'linewidth', 2);
     hold on;
     plot(lce_nor(st:ed), fce2(st:ed), '--', 'linewidth', 2);
@@ -58,12 +92,17 @@
     hold on;
     plot(lce_nor(st:ed), fce(st:ed), 'k-', 'linewidth', 2);
     hold on;
-    plot(lce_nor(st:ed), fpee(st:ed), '--', 'Color', [.7 .7 .7], 'linewidth', 2);
+    plot(lce_nor(st:ed), fpee(st:ed), '-', 'Color', [.7 .7 .7], 'linewidth', 2);
+    hold on
+    plot(lce_nor(st:ed), fce(st:ed) + fpee(st:ed), '-', 'linewidth', 2);
+    hold off
     xlim([lce_nor(st), lce_nor(ed)]);
     ylim([-0.05, 1.5]);
-    legend(["Guassion 1", "Guassion 2", "Guassion 3", "F-lce", "F-pas"])
+    legend(["Guassion 1", "Guassion 2", "Guassion 3", "F-lce", "F-pas", "F-tol"])
     xlabel('Lce-nor')
     ylabel('Fact, Fpas')
     
-    
-    
+    subplot(1,3,3)
+    plot(dlce_nor, fv, '-','Color', [.7 .7 .7], 'linewidth', 2);
+    xlabel('dLce-nor')
+    ylabel('Fv')

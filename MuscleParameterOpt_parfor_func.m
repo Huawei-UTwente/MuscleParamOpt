@@ -80,8 +80,8 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     W2 = 100;  % weight of muscle activation fits
     W3 = 10;  % weight of muscle activation smoothness
     W4 = 10;  % weight of muscle force smoothness
-    W5 = 1; % weight of diversity of the optimizing parameters
-    W6 = 0.05;  % very small number to eliminate co-contraction
+    W5 = 5; % weight of diversity of the optimizing parameters
+    W6 = 0.1;  % very small number to eliminate co-contraction
     
     Prange = 0.25;
     
