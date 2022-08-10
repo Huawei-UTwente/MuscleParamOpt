@@ -10,7 +10,10 @@ function Fse = tendenForce_Groote(lmt, lce, lce_opt, lt_slack, theta0)
     c1 = 0.2;
     c2 = 0.995;
     c3 = 0.25;
-    kT = 35;
+%     kT = 35;   %4 strain
+%     kT = 20;   %8.5 strain
+%     kT = 25;   %6.5 strain
+      kT = 17.5; %10% strain
     
     % pennation angle calculation and its derivatives
     cos_theta = pennationAngSmooth(lce, lce_opt, theta0);
