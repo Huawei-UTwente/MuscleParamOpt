@@ -80,15 +80,15 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     W2 = 100;  % weight of muscle activation fits
     W3 = 10;  % weight of muscle activation smoothness
     W4 = 10;  % weight of muscle force smoothness
-    W5 = 5; % weight of diversity of the optimizing parameters
-    W6 = 0.1;  % very small number to eliminate co-contraction
+    W5 = 1; % weight of diversity of the optimizing parameters
+    W6 = 0;  % very small number to eliminate co-contraction
     
-    Prange = 0.25;
+    Prange = 0.5;
     
     %% optimization boundaries and setups
     x_lb1 = [zeros(sum(N), M) + 0.001,...              % activation
             zeros(sum(N), M) - 30,...                  % d_activation
-            zeros(sum(N), M) + mus_par0(1:M)*0.5,...    % lce
+            zeros(sum(N), M) + mus_par0(1:M)*0.35,...    % lce
             zeros(sum(N), M) - mus_par0(1:M)*15, ....   % dlce
             zeros(sum(N), M) + 0.001];                 % nerual stimulation
 
@@ -97,7 +97,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_lb = [mus_par0(1:2*M)*(1 - Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M + 1:4*M)*(1 - Prange*2)];
+                 mus_par0(3*M + 1:4*M)*(1 - Prange)];
 
     x_lb3 = [x_lb2, par_rf_lb];
 
@@ -105,7 +105,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % lce can be maximum 2 time the lce_opt
     x_ub1 = [zeros(sum(N), M) + 1,...                  % activation
              zeros(sum(N), M) + 30,...                 % d_activation
-             zeros(sum(N), M) + mus_par0(1:M)*1.5,...   % lce
+             zeros(sum(N), M) + mus_par0(1:M)*1.8,...   % lce
              zeros(sum(N), M) + mus_par0(1:M)*15, ...   % dlce
              zeros(sum(N), M) + 1];                    % nerual stimulation
 
@@ -114,7 +114,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_ub = [mus_par0(1:2*M)*(1 + Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M + 1:4*M)*(1 + Prange*4)]; 
+                 mus_par0(3*M + 1:4*M)*(1 + Prange*3)]; 
 
     x_ub3 = [x_ub2, par_rf_ub];
     
@@ -123,9 +123,10 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % Set the IPOPT options.
     options.ipopt.hessian_approximation = 'limited-memory';
     options.ipopt.mu_strategy           = 'adaptive';
-    options.ipopt.tol                   = 1e-5;
+    options.ipopt.tol                   = 1e-4;
     options.ipopt.max_iter              = 5000;
     options.ipopt.linear_solver         = 'mumps';
+    options.ipopt.max_cpu_time         = 600;
     
     % optimization parameters
     auxdata.mus_par0 = mus_par0;
