@@ -59,10 +59,14 @@
     c1 = 0.2;
     c2 = 0.995;
     c3 = 0.25;
-    kT = 35;
+    kT = 17.5;
     
-    lt_nor = 0.98:0.0001:1.05;
+    lt_nor = 0.98:0.0001:1.12;
     Fse_nor = c1*exp(kT.*(lt_nor - c2)) - c3;
+    
+%     figure
+%     plot(lt_nor, Fse_nor)
+%     hold on
     
     %% plot all curves
     
