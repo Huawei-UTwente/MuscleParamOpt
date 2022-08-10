@@ -162,7 +162,9 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
 
     h1 = figure(1);
     joint_names = ["ANKLE MOMENT Nm"];
-
+    
+    best_res = load(sprintf('%s/optimization_res%02d.mat', save_path, plot_ind(1)));
+    
     for opt = plot_ind(st:ed)
 
         saving_names = sprintf('%s/optimization_res%02d.mat', save_path, opt);
@@ -185,6 +187,14 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
                     legend("experimental Joint Torques", ...
                            "optimized Joint Torques")
                 end
+                
+                r_Tor = corrcoef(torque(sum(N(1:t-1))+1:sum(N(1:t)), :), ...
+                    res.mom_res(sum(N(1:t-1))+1:sum(N(1:t)), :));
+                
+                best_res.coeff.torque(t) = r_Tor(1, 2);
+                best_res.rms.torque(t) = rms(torque(sum(N(1:t-1))+1:sum(N(1:t)), :) ...
+                    - res.mom_res(sum(N(1:t-1))+1:sum(N(1:t)), :));
+                
             end
         end
         color_ind = color_ind + 1;
@@ -254,6 +264,13 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
                     ylabel(trail_name)
                 end
                 
+                r_Mus = corrcoef(mus_act(sum(N(1:t-1))+1:sum(N(1:t)), m), ...
+                    res.states(sum(N(1:t-1))+1:sum(N(1:t)), 4*M + m));
+                
+                best_res.coeff.activation(t, m) = r_Mus(1, 2);
+                best_res.rms.activation(t, m) = rms(mus_act(sum(N(1:t-1))+1:sum(N(1:t)), m) ...
+                    - res.states(sum(N(1:t-1))+1:sum(N(1:t)), 4*M + m));
+                
             end
             sgtitle('Muscle Activation')
         end
@@ -262,5 +279,12 @@ function optimizationResultAnalysis_MPO_func(homeDataPath, trialNamesOpt, subj, 
     end
     savefig(h3, sprintf('%s/MuscleActivation.fig', save_path))
     close(h3)
+    
+    h4 = figure();
+    boxplot(Time_res_sort);
+    savefig(h4, sprintf('%s/ComputingTime.fig', save_path))
+    close(h4)
+    
+    save(sprintf('%s/best_res.mat',save_path), 'best_res');
     
 end
