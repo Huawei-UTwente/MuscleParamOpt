@@ -20,8 +20,7 @@
     b23 = 1.000;
     b33 = 0.354;
     b43 = 0.000;
-    kpe = 4.0;
-    e0 = 0.6;
+    
     d1 = -0.318;
     d2 = -8.149;
     d3 = -0.374;
@@ -38,10 +37,14 @@
     fce = fce1 + fce2 + fce3;
 
     %% passive force length relationship and its differentiations
+    kpe = 4.0;
+    e0 = 0.6;
     
     fpee1 = exp(kpe*(lce_nor - 1)/e0);
 
     fpee = (fpee1 - 1)./(exp(kpe) - 1);
+    
+    fpee_pos = (sqrt(fpee.^2 + 1e-5) + fpee)/2;
     
     %% muscle force-velocity curves
     
@@ -57,13 +60,14 @@
     %% Tendon force calculation
     
     c1 = 0.2;
-    c2 = 0.995;
-    c3 = 0.25;
+    c2 = 1; %0.995;
+    c3 = 0.2; %0.25;
     kT = 17.5;
     
     lt_nor = 0.98:0.0001:1.12;
     Fse_nor = c1*exp(kT.*(lt_nor - c2)) - c3;
-    
+    Fse_nor_pos = (sqrt(Fse_nor.^2 + 1e-5) + Fse_nor)/2;
+
 %     figure
 %     plot(lt_nor, Fse_nor)
 %     hold on
@@ -82,23 +86,24 @@
     
     subplot(1,3,1)
     plot(lt_nor, Fse_nor, '-','Color', [.7 .7 .7], 'linewidth', 2);
+    hold on
+    plot(lt_nor, Fse_nor_pos, 'r--', 'linewidth', 2);
+    hold off
     xlabel('Lt-nor')
     ylabel('Ft')
     
     subplot(1,3,2)
     st = 1;
     ed = length(lce_nor);
-    plot(lce_nor(st:ed), fce1(st:ed), '--', 'linewidth', 2);
-    hold on;
-    plot(lce_nor(st:ed), fce2(st:ed), '--', 'linewidth', 2);
-    hold on;
-    plot(lce_nor(st:ed), fce3(st:ed), '--', 'linewidth', 2);
-    hold on;
     plot(lce_nor(st:ed), fce(st:ed), 'k-', 'linewidth', 2);
     hold on;
     plot(lce_nor(st:ed), fpee(st:ed), '-', 'Color', [.7 .7 .7], 'linewidth', 2);
     hold on
+    plot(lce_nor(st:ed), fpee_pos(st:ed), 'r--', 'linewidth', 2);
+    hold on
     plot(lce_nor(st:ed), fce(st:ed) + fpee(st:ed), '-', 'linewidth', 2);
+    hold on
+    plot(lce_nor(st:ed), fce(st:ed) + fpee_pos(st:ed), '--', 'linewidth', 2);
     hold off
     xlim([lce_nor(st), lce_nor(ed)]);
     ylim([-0.05, 1.5]);

@@ -1,4 +1,4 @@
-function Fse = tendenForce_Groote(lmt, lce, lce_opt, lt_slack, theta0)
+function Fse_S = tendenForce_Groote_MPO(lmt, lce, lce_opt, lt_slack, theta0)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 % This is the tenden force calculation
 %
@@ -8,8 +8,8 @@ function Fse = tendenForce_Groote(lmt, lce, lce_opt, lt_slack, theta0)
     
     % some default parameters, from Groote 2016 paper
     c1 = 0.2;
-    c2 = 0.995;
-    c3 = 0.25;
+    c2 = 1;      %0.995;
+    c3 = 0.2;    %0.25
 %     kT = 35;   %4 strain
 %     kT = 20;   %8.5 strain
 %     kT = 25;   %6.5 strain
@@ -26,5 +26,8 @@ function Fse = tendenForce_Groote(lmt, lce, lce_opt, lt_slack, theta0)
     
     % calculate tendon force
     Fse = c1*exp(kT.*(lt_nor - c2)) - c3;
+    
+    % smooth the Fse & removing negative Fse values
+    Fse_S = (sqrt(Fse.^2 + 1e-5) + Fse)/2;
     
 end

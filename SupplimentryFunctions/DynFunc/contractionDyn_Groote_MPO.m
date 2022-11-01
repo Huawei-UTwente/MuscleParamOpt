@@ -1,5 +1,5 @@
 
-function f = contractionDyn_Groote(lmt, a, lce, dlce, lce_opt, lt_slack, theta0)
+function f = contractionDyn_Groote_MPO(lmt, a, lce, dlce, lce_opt, lt_slack, theta0)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % This is the contraction dynamics of Hill's muscle model
 %
@@ -39,6 +39,8 @@ function f = contractionDyn_Groote(lmt, a, lce, dlce, lce_opt, lt_slack, theta0)
     fpee1 = exp(kpe*(lce_nor - 1)/e0);
 
     fpee = (fpee1 - 1)./(exp(kpe) - 1);
+    
+    fpee_s = (sqrt(fpee.^2 + 1e-5) + fpee)/2;
 
     % force velocity relationship and its differentiations.
     dlceMax = 10*lce_opt;
@@ -53,10 +55,10 @@ function f = contractionDyn_Groote(lmt, a, lce, dlce, lce_opt, lt_slack, theta0)
     
     % calcualte the force of the contraction element and PEE together
 
-    Fce = (a.*fce.*fv + fpee).*cos_theta;
+    Fce = (a.*fce.*fv + fpee_s).*cos_theta;
 
     % tendon force calculation
-    Fse = tendenForce_Groote(lmt, lce, lce_opt, lt_slack, theta0);
+    Fse = tendenForce_Groote_MPO(lmt, lce, lce_opt, lt_slack, theta0);
 
     % force of the contraction element should equal to the force of the tense unit
     f = (Fce - Fse);

@@ -62,7 +62,7 @@ function [df_dx, df_ddx, df_dx_em, df_dp] = ...
 
     % muscle force dynamics
     [~, dfm_da_non, dfm_dlce, dfm_ddlce, dfm_dlce_opt, dfm_dlt_slack, dfm_dtheta0]...
-        = contractionDyn_Groote_diff(lmt, a_non, lce, dlce, lce_opt, lt_slack, theta0);
+        = contractionDyn_Groote_diff_MPO(lmt, a_non, lce, dlce, lce_opt, lt_slack, theta0);
 
     % generate the combined constraints
     % f = [fd, fa, fm];

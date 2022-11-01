@@ -40,7 +40,7 @@ function f = directCollocationDyn_MPO1(x, dx, lmt, par, M)
     a_non = a;
     
     % muscle force dynamics
-    fm = contractionDyn_Groote(lmt, a_non, lce, dlce, lce_opt, ...
+    fm = contractionDyn_Groote_MPO(lmt, a_non, lce, dlce, lce_opt, ...
                                lt_slack, theta0);
 
     % generate the combined constraints

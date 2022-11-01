@@ -40,13 +40,15 @@ function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
             tor_mea = torque_m(mea_st_n, :);
             
             % calculate muscle force and joint torques
-            Fse = tendenForce_Groote(lmt_mea, lce, lce_opt, lt_slack, theta0);
+            Fse = tendenForce_Groote_MPO(lmt_mea, lce, lce_opt, lt_slack, theta0);
             tor_opt = Fse.*Fmax*d_mea';  
             
             % calculate the sum of square fit
             sum_tor = sum_tor + sum((tor_opt - tor_mea).^2);  % torque fit
             sum_act = sum_act + sum((act_opt - act_mea).^2);  % emg fit
-            sum_for = sum_for + sum(Fse);  % L1 regularization
+            
+            delta = 1e-6;
+            sum_for = sum_for + sum(sqrt(Fse.^2 + delta));  % L1 regularization
             
             if n < N(t)
                act_opt_nt = x(sta_st + sta_st_n + M*S + 4*M + 1: ...
@@ -57,7 +59,7 @@ function obj =  objective_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
                lce_nt = x(sta_st + sta_st_n + M*S + 2*M + 1: sta_st + sta_st_n + M*S + 3*M);
                lmt_mea_nt = lmt(mea_st_n + 1, :);
                
-               Fse_nt = tendenForce_Groote(lmt_mea_nt, lce_nt, lce_opt, lt_slack, theta0);
+               Fse_nt = tendenForce_Groote_MPO(lmt_mea_nt, lce_nt, lce_opt, lt_slack, theta0);
                sum_fse_smo = sum_fse_smo + sum((Fse_nt - Fse).^2);
                
             end

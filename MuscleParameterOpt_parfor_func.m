@@ -25,7 +25,7 @@
 
 function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
                                         mass, muscleNames, coordinateNames,...
-                                        homeSavingPath)
+                                        homeSavingPath, W5_list, W6_list)
                
     T = length(trialNamesOpt);  % number of data trails involved in the optimization, each data trial
             % could have different data nodes.
@@ -80,15 +80,16 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     W2 = 100;  % weight of muscle activation fits
     W3 = 10;  % weight of muscle activation smoothness
     W4 = 10;  % weight of muscle force smoothness
-    W5 = 1; % weight of diversity of the optimizing parameters
-    W6 = 0;  % very small number to eliminate co-contraction
+    
+    % W5 = 1; % weight of diversity of the optimizing parameters
+    % W6 = 1;  % very small number to eliminate co-contraction
     
     Prange = 0.5;
     
     %% optimization boundaries and setups
     x_lb1 = [zeros(sum(N), M) + 0.001,...              % activation
             zeros(sum(N), M) - 30,...                  % d_activation
-            zeros(sum(N), M) + mus_par0(1:M)*0.35,...    % lce
+            zeros(sum(N), M) + mus_par0(1:M)*0.3,...    % lce
             zeros(sum(N), M) - mus_par0(1:M)*15, ....   % dlce
             zeros(sum(N), M) + 0.001];                 % nerual stimulation
 
@@ -114,7 +115,7 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % l_opt, lt_slack have range of Prange, penn_ang is locked, Fmax has
     % range of 2*Prange
     par_rf_ub = [mus_par0(1:2*M)*(1 + Prange), mus_par0(2*M + 1:3*M), ...
-                 mus_par0(3*M + 1:4*M)*(1 + Prange*3)]; 
+                 mus_par0(3*M + 1:4*M)*(1 + Prange*2)]; 
 
     x_ub3 = [x_ub2, par_rf_ub];
     
@@ -145,14 +146,6 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     auxdata.mus_act = mus_act;
     auxdata.d = d;
     
-    % weight of each objective function term
-    auxdata.W1 = W1;
-    auxdata.W2 = W2;
-    auxdata.W3 = W3;
-    auxdata.W4 = W4;
-    auxdata.W5 = W5;
-    auxdata.W6 = W6;
-    
     % jacobian structure
     [row, col] = jacobianstructure_ipopt_rc_MPO(auxdata);
     auxdata.row = row;
@@ -172,30 +165,39 @@ function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, subj, ...
     % constraints.
     options.cl = zeros(1, rCons);
     options.cu = zeros(1, rCons);
-    
-    % Set the IPOPT options.
-    options.ipopt.hessian_approximation = 'limited-memory';
-    options.ipopt.mu_strategy           = 'adaptive';
-    options.ipopt.tol                   = 1e-5;
-    options.ipopt.max_iter              = 5000;
-    options.ipopt.linear_solver         = 'mumps';
 
-    % The callback functions.
-    funcs.objective         = @(x) objective_ipopt_MPO(x, auxdata);
-    funcs.constraints       = @(x) constraints_ipopt_MPO(x, auxdata);
-    funcs.gradient          = @(x) gradient_ipopt_MPO(x, auxdata);
-    funcs.jacobian          = @(x) jacobian_ipopt_MPO(x, auxdata);
-    funcs.jacobianstructure = @() jacobianstructure_ipopt_MPO(auxdata);
+    for W5 = W5_list
+        for W6 = W6_list
+        
+            % weight of each objective function term
+            auxdata.W1 = W1;
+            auxdata.W2 = W2;
+            auxdata.W3 = W3;
+            auxdata.W4 = W4;
+            auxdata.W5 = W5;
+            auxdata.W6 = W6;
 
-    auxdata.options = options;
-    auxdata.funcs = funcs;
+            savingFolder = sprintf("%s/W5_%02d_W6_%02d", folder, W5, W6);
+            mkdir(savingFolder);
 
-    auxdata.folder = folder;
-    
-    % run optimizations in parallel 
-    parfor opt = 1:100
-        do_optimization_MPO(opt, auxdata)
+            auxdata.folder = savingFolder;
+
+            % The callback functions.
+            funcs.objective         = @(x) objective_ipopt_MPO(x, auxdata);
+            funcs.constraints       = @(x) constraints_ipopt_MPO(x, auxdata);
+            funcs.gradient          = @(x) gradient_ipopt_MPO(x, auxdata);
+            funcs.jacobian          = @(x) jacobian_ipopt_MPO(x, auxdata);
+            funcs.jacobianstructure = @() jacobianstructure_ipopt_MPO(auxdata);
+
+            auxdata.options = options;
+            auxdata.funcs = funcs;
+
+            % run optimizations in parallel 
+            parfor opt = 1:100
+                do_optimization_MPO(opt, auxdata)
+            end
+            
+        end
     end
-    
 end
     
