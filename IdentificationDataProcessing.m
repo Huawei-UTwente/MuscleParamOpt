@@ -9,13 +9,13 @@ clc
 clear
 close all
 
-dataFile = 'ExperimentalData/walk_36.mat';
-osimModelFile = 'ExperimentalData/gait2392.osim';
+dataFile = '../D2.4/Processed/Processed_lift_stair.mat';
+osimModelFile = '../D2.4/Processed/OS//gait2392.osim';
 MuscleParaFile = 'ExperimentalData/par_mus.mat';
 muscleNames = ["soleus_r", "lat_gas_r", "med_gas_r", "tib_ant_r"];
 coordNames = ["ankle_angle_r"];
 mass = 58.4;
-savingPath = 'idParaData';
+savingPath = 'D2.4/lift_walk';
 
 idDataPreparison(dataFile, osimModelFile, MuscleParaFile, ....
     muscleNames, coordNames, mass, savingPath)

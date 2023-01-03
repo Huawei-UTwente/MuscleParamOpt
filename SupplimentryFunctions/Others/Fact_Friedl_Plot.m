@@ -28,7 +28,8 @@
     d4 = 0.886;
 
     % normalize muscle fiber lengths
-    lce_nor = 0.0: 0.01: 2.0;
+    lce_nor = [-2 -1 0 0.5 0.7 0.9 0.99 0.998 0.999 1 1.05 1.1 1.2 1.3 1.4 1.5 1.6 1.601 1.602 1.8 2];
+    % [-5 -4 -3 -2 -1 0 0.1 0.2 0.3 0.4 0.402 0.4035 0.52725 0.55 0.6 0.62875 0.65 0.7 0.71875 0.75 0.8 0.86125 0.9 0.95 0.98 1.045 1.05 1.1 1.2175 1.3 1.43875 1.5 1.6 1.7 1.8 1.9 2.0 2.5 3 4 5];
 
     % active force length relationship and its differentiatons
     fce1 = gaussianFunctionAct(lce_nor, b11, b21, b31, b41);
@@ -47,9 +48,9 @@
     
         % force velocity relationship and its differentiations.
     
-    dlce_nor = -1:0.01:1;
+    dlce_nor = [-10 -7 -5 -3 -1 -0.8 -0.6 -0.3 -0.1 0 0.1 0.3 0.6 0.8 1 3 5 7 10];
 
-    fv_logfun = (d2*dlce_nor + d3) + sqrt(((d2*dlce_nor + d3).^2) + 1);
+    fv_logfun = (d2*dlce_nor/10 + d3) + sqrt(((d2*dlce_nor/10 + d3).^2) + 1);
     fv_log = log(fv_logfun);
 
     fv = d1*fv_log + d4;
@@ -60,9 +61,11 @@
     c2 = 0.995;
     c3 = 0.25;
     kT = 17.5;
+
+    lt_nor = [ -0.05 -0.02 -0.01 -0.005 -0.002 -0.001 0 0.00131 0.00281 0.00431 0.00581 0.00731 ... 
+               0.00881 0.0103 0.0118 0.0123 0.02 0.03 0.04 0.05 0.06 0.08 0.1 0.125 0.15 0.175 0.2 0.225 0.25 0.275 0.3 0.325 0.35 0.375 0.4];
     
-    lt_nor = 0.98:0.0001:1.12;
-    Fse_nor = c1*exp(kT.*(lt_nor - c2)) - c3;
+    Fse_nor = c1*exp(kT.*(lt_nor + 1 - c2)) - c3;
     
 %     figure
 %     plot(lt_nor, Fse_nor)
