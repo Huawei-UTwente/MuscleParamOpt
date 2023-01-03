@@ -43,7 +43,7 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
             
             % calculate muscle force and joint torques
             [Fse, dFse_dlce, dFse_dlce_opt, dFse_dlt_slack, dFse_dtheta0] = ...
-                tendenForce_Groote_diff(lmt_mea, lce, lce_opt, lt_slack, theta0);
+                tendenForce_Groote_diff_MPO(lmt_mea, lce, lce_opt, lt_slack, theta0);
             
             tor_opt = Fse.*Fmax*d_mea';
             
@@ -70,20 +70,23 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
                 grad(sta_st + sta_st_n + 4*M + 1:sta_st + sta_st_n + 5*M) ... 
                 + 2*W2*(act_opt - act_mea);
             
+            delta = 1e-6;
+            % Fse_abs = sqrt(Fse.^2 + delta)
+            dFse_abs_dFse = Fse./sqrt(Fse.^2 + delta);
             
             % gradients of eliminate co-constraction
             grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) = ...
                 grad(sta_st + sta_st_n + 2*M + 1: sta_st + sta_st_n + 3*M) + ...
-                W6*dFse_dlce;
+                W6*dFse_abs_dFse.*dFse_dlce;
             
             grad(p_st + 1:p_st + M) = grad(p_st + 1:p_st + M) + ...
-                W6*dFse_dlce_opt;
+                W6*dFse_abs_dFse.*dFse_dlce_opt;
             
             grad(p_st + M + 1:p_st + 2*M) = grad(p_st + M + 1:p_st + 2*M) + ...
-                W6*dFse_dlt_slack;
+                W6*dFse_abs_dFse.*dFse_dlt_slack;
             
             grad(p_st + 2*M + 1:p_st + 3*M) = grad(p_st + 2*M + 1:p_st + 3*M) + ...
-                W6*dFse_dtheta0;
+                W6*dFse_abs_dFse.*dFse_dtheta0;
 
             % activation smoothness gradients
             if n < N(t)
@@ -102,7 +105,7 @@ function grad = gradient_MPO(x, lmt, torque_m, act_m, d, M, N, S, P,...
                 lce_nt = x(sta_st + sta_st_n + M*S + 2*M + 1: sta_st + sta_st_n + M*S + 3*M);
                 lmt_mea_nt = lmt(mea_st_n + 1, :);
                 [Fse_nt, dFse_nt_dlce, dFse_nt_dlce_opt, dFse_nt_dlt_slack, dFse_nt_dtheta0] = ...
-                    tendenForce_Groote_diff(lmt_mea_nt, lce_nt, lce_opt, lt_slack, theta0);
+                    tendenForce_Groote_diff_MPO(lmt_mea_nt, lce_nt, lce_opt, lt_slack, theta0);
                 
                 dsum_fse_dFse = -2*W4*(Fse_nt - Fse);
                 dsum_fse_dFse_nt = 2*W4*(Fse_nt - Fse);

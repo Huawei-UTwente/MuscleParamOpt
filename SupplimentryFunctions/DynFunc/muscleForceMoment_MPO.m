@@ -27,7 +27,7 @@ function [mom, force] = muscleForceMoment_MPO(x, lmt, d, M, N, S, J, P)
             d_mea = d(mea_st+n, :);
             
             % calculate muscle force and joint torques
-            force(mea_st+n, :) = tendenForce_Groote(lmt_mea, lce, lce_opt, lt_slack, theta0);
+            force(mea_st+n, :) = tendenForce_Groote_MPO(lmt_mea, lce, lce_opt, lt_slack, theta0);
             mom(mea_st+n, :) = force(mea_st+n, :).*Fmax*d_mea';
 
         end

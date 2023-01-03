@@ -19,7 +19,7 @@ function do_optimization_MPO(opt, auxdata)
     lb = options.lb;
     ub = options.ub;
     
-
+    rng(opt);
     %% generate initial guesses
     % initialize the optimizing parameters
     mus_a = (0.95 + 0.1*rand(sum(N), M)).*mus_act(1:sum(N), :);
