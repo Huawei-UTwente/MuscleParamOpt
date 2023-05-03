@@ -1,0 +1,5 @@
+TorquesFilt
+nRows=4294967295
+nColumns=3
+endheader
+time	knee_angle_r	knee_angle_l	

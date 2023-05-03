@@ -24,63 +24,65 @@
 clc
 clear
 
-homeDataPath = 'D2.4';
-trialNamesOpt = ["Processed_lift_heel_rise0"];
-muscleNames = ["soleus_r","lat_gas_r","med_gas_r","tib_ant_r"];
+homeDataPath = 'exampleData';
+trialNamesOpt = ["lift_0"];
+muscleNames = ["soleus_r","gas_r"];
 coordinateNames = ["ankle_angle_r"];
-homeSavingPath = 'D2.4/Processed_lift_heel_rise0';
 
 MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, ...
-                                        muscleNames, coordinateNames,...
-                                        homeSavingPath)
+                                        muscleNames, coordinateNames)
 
 function MuscleParameterOpt_parfor_func(homeDataPath, trialNamesOpt, ...
-                                        muscleNames, coordinateNames,...
-                                        homeSavingPath)
+                                        muscleNames, coordinateNames)
                
     T = length(trialNamesOpt);  % number of data trails involved in the optimization, each data trial
             % could have different data nodes.
     
-    t_em = 0.0 + zeros(1, T);  % electrialmechaincal delay inside muscle physiologies, around
+    t_em = 0.1 + zeros(1, T);  % electrialmechaincal delay inside muscle physiologies, around
                                % 100ms. Could be different among data trials
+                               
     J = length(coordinateNames);  % number of joint in each side of leg
     M = length(muscleNames);  % number of muscle in each side of leg
     S = 5;  % number of states of each muscle model
     C = 4;  % number of constraints of each muscle model
 
-    % initialize the matrix of optimization inputs
-%     mus_act = zeros(sum(N), M);
-%     torque = zeros(sum(N), J);
-%     lmt = zeros(sum(N), M);
-%     d = zeros(sum(N), M);
     hs = zeros(1, T);
 
     for t = 1:T  % load trial data and get muscle parameters from the averaged gait data
-
+        
         trial = trialNamesOpt(t);
 
-        musPar = load(sprintf('%s/%s.mat', ...
-            homeDataPath, trial));
+        % get muscle parameters
+        
 
         % get muscle activation
-        mus_act = musPar.idParaData.mus_act(:, 1:M);
-
+        act_dataset = importdata(sprintf('%s/%s/Activations.sto', homeDataPath, trial));
+        act = act_dataset.data(100:600, 2:3);
+        
         % get joint torques
-        torque = musPar.idParaData.torque(:, 1:J);
+        tor_dataset = importdata(sprintf('%s/%s/id.sto', homeDataPath, trial));
+        tor = tor_dataset.data(100:600, 2);
+        
+        % get muscle lengths
+        FiberLen_dataset = importdata(sprintf('%s/%s/FibreLengths.sto', homeDataPath, trial));
+        TendonLen_dataset = importdata(sprintf('%s/%s/TendonLength.sto', homeDataPath, trial));
+        muslen = FiberLen_dataset.data(100:600, 2:3) + TendonLen_dataset.data(100:600, 2:3);
 
-        % get muscle length and moment arms
-        lmt = musPar.idParaData.lmt(:, 1:M);
-        d = musPar.idParaData.ma(:, 1:M);
-
+        % get moment arms
+        ma_dataset = importdata(sprintf('%s/%s/ma_ankle_angle_r.sto', homeDataPath, trial));
+        ma = ma_dataset.data(100:600, 2:3);
+        
         % get the time interval
-        hs(t) = musPar.idParaData.hs;
+        hs(t) = 0.1;
+        
+        homeSavingPath = sprintf('%s/%s/opt', homeDataPath, trial);
 
     end
     
     N = length(torque);
 
-    % initial muscle parameters from the scaled Osim model
-    mus_par0 = musPar.idParaData.mus_par; 
+    % initial muscle parameters from the initial xml
+    mus_par0 = importdata(sprintf('%s/mus_param.txt', homeDataPath)); 
     P = length(mus_par0);
     
     % optimization saving path
